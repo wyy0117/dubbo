@@ -140,6 +140,10 @@ public class ExtensionLoader<T> {
         return asList(strategies);
     }
 
+    /**
+     * 构造器私有，可以缓存已经使用创建过的 ExtensionLoader
+     * @param type
+     */
     private ExtensionLoader(Class<?> type) {
         this.type = type;
         objectFactory = (type == ExtensionFactory.class ? null : ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension());
@@ -162,6 +166,9 @@ public class ExtensionLoader<T> {
                     ") is not an extension, because it is NOT annotated with @" + SPI.class.getSimpleName() + "!");
         }
 
+        /**
+         * 缓存ExtensionLoader
+         */
         ExtensionLoader<T> loader = (ExtensionLoader<T>) EXTENSION_LOADERS.get(type);
         if (loader == null) {
             EXTENSION_LOADERS.putIfAbsent(type, new ExtensionLoader<T>(type));
@@ -581,6 +588,9 @@ public class ExtensionLoader<T> {
                         createAdaptiveInstanceError);
             }
 
+            /**
+             * 双重校验
+             */
             synchronized (cachedAdaptiveInstance) {
                 instance = cachedAdaptiveInstance.get();
                 if (instance == null) {
@@ -635,6 +645,9 @@ public class ExtensionLoader<T> {
                 EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());
                 instance = (T) EXTENSION_INSTANCES.get(clazz);
             }
+            /**
+             * 类似依赖注入
+             */
             injectExtension(instance);
 
 
@@ -643,6 +656,9 @@ public class ExtensionLoader<T> {
                 List<Class<?>> wrapperClassesList = new ArrayList<>();
                 if (cachedWrapperClasses != null) {
                     wrapperClassesList.addAll(cachedWrapperClasses);
+                    /**
+                     * {@link Activate#order()}
+                     */
                     wrapperClassesList.sort(WrapperComparator.COMPARATOR);
                     Collections.reverse(wrapperClassesList);
                 }
@@ -658,6 +674,9 @@ public class ExtensionLoader<T> {
                 }
             }
 
+            /**
+             * 初始化，类似Spring的初始化
+             */
             initExtension(instance);
             return instance;
         } catch (Throwable t) {
@@ -670,6 +689,11 @@ public class ExtensionLoader<T> {
         return getExtensionClasses().containsKey(name);
     }
 
+    /**
+     * set方法注入
+     * @param instance
+     * @return
+     */
     private T injectExtension(T instance) {
 
         if (objectFactory == null) {
@@ -767,6 +791,7 @@ public class ExtensionLoader<T> {
 
     /**
      * synchronized in getExtensionClasses
+     * <p>加载对应类型的所有的扩展类</p>
      */
     private Map<String, Class<?>> loadExtensionClasses() {
         cacheDefaultExtensionName();
@@ -833,6 +858,9 @@ public class ExtensionLoader<T> {
             if (urls != null) {
                 while (urls.hasMoreElements()) {
                     java.net.URL resourceURL = urls.nextElement();
+                    /**
+                     * 加载资源
+                     */
                     loadResource(extensionClasses, classLoader, resourceURL, overridden, excludedPackages);
                 }
             }
@@ -848,6 +876,9 @@ public class ExtensionLoader<T> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceURL.openStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
+                    /**
+                     * # 是注释，#以前的内容可以继续读取
+                     */
                     final int ci = line.indexOf('#');
                     if (ci >= 0) {
                         line = line.substring(0, ci);
@@ -856,6 +887,9 @@ public class ExtensionLoader<T> {
                     if (line.length() > 0) {
                         try {
                             String name = null;
+                            /**
+                             * key和value使用=分开
+                             */
                             int i = line.indexOf('=');
                             if (i > 0) {
                                 name = line.substring(0, i).trim();
@@ -989,6 +1023,9 @@ public class ExtensionLoader<T> {
      * test if clazz is a wrapper class
      * <p>
      * which has Constructor with given class type as its only argument
+     * <p>
+     *     构造器有一个自身的接口的类型的参数
+     * </p>
      */
     private boolean isWrapperClass(Class<?> clazz) {
         try {
@@ -1030,6 +1067,11 @@ public class ExtensionLoader<T> {
         return cachedAdaptiveClass = createAdaptiveExtensionClass();
     }
 
+    /**
+     * 动态生成自适应扩展类，参考：https://dubbo.apache.org/zh/docs/v2.7/dev/source/adaptive-extension/
+     * 生成的代码，会通过解析URL参数，来加载真实需要的类
+     * @return
+     */
     private Class<?> createAdaptiveExtensionClass() {
         String code = new AdaptiveClassCodeGenerator(type, cachedDefaultName).generate();
         ClassLoader classLoader = findClassLoader();
