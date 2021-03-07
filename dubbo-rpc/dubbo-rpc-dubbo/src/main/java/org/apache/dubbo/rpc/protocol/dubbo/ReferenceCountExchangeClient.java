@@ -47,6 +47,9 @@ final class ReferenceCountExchangeClient implements ExchangeClient {
 
     public ReferenceCountExchangeClient(ExchangeClient client) {
         this.client = client;
+        /**
+         * 计数器自增
+         */
         referenceCount.incrementAndGet();
         this.url = client.getUrl();
     }

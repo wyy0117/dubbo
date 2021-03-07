@@ -139,8 +139,14 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
                     + ", dubbo version is " + Version.getVersion() + ", this invoker should not be used any longer");
         }
         RpcInvocation invocation = (RpcInvocation) inv;
+        /**
+         * Invocation设置invoker对象
+         */
         invocation.setInvoker(this);
         if (CollectionUtils.isNotEmptyMap(attachment)) {
+            /**
+             * Invocation对象设置attachment
+             */
             invocation.addObjectAttachmentsIfAbsent(attachment);
         }
 
@@ -155,6 +161,9 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
             invocation.addObjectAttachments(contextAttachments);
         }
 
+        /**
+         * 设置执行方式，同步，异步或者回调
+         */
         invocation.setInvokeMode(RpcUtils.getInvokeMode(url, invocation));
         RpcUtils.attachInvocationIdIfAsync(getUrl(), invocation);
 
@@ -184,6 +193,12 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         return asyncResult;
     }
 
+    /**
+     * 获取线程池
+     * @param url
+     * @param inv
+     * @return
+     */
     protected ExecutorService getCallbackExecutor(URL url, Invocation inv) {
         ExecutorService sharedExecutor = ExtensionLoader.getExtensionLoader(ExecutorRepository.class).getDefaultExtension().getExecutor(url);
         if (InvokeMode.SYNC == RpcUtils.getInvokeMode(getUrl(), inv)) {
@@ -193,6 +208,12 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         }
     }
 
+    /**
+     * 模板方法，由子类实现
+     * @param invocation
+     * @return
+     * @throws Throwable
+     */
     protected abstract Result doInvoke(Invocation invocation) throws Throwable;
 
 }

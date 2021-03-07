@@ -104,6 +104,9 @@ public class ExtensionLoader<T> {
     private String cachedDefaultName;
     private volatile Throwable createAdaptiveInstanceError;
 
+    /**
+     * {@link ExtensionLoader#loadClass(java.util.Map, java.net.URL, java.lang.Class, java.lang.String, boolean)}时，根据构造器会判断是否是wrap类
+     */
     private Set<Class<?>> cachedWrapperClasses;
 
     private Map<String, IllegalStateException> exceptions = new ConcurrentHashMap<>();

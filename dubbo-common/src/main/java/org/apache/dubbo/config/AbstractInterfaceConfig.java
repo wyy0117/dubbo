@@ -176,6 +176,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     /**
      * Check whether the registry config is exists, and then conversion it to {@link RegistryConfig}
+     * <p>转换为注册中心，验证注册中心的配置是否有效</p>
      */
     public void checkRegistry() {
         convertRegistryIdsToRegistries();
@@ -200,6 +201,8 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     /**
      * Check whether the remote service interface and the methods meet with Dubbo's requirements.it mainly check, if the
      * methods configured in the configuration file are included in the interface of remote service
+     *
+     * <p>校验接口和方法是否匹配</p>
      *
      * @param interfaceClass the interface of remote service
      * @param methods        the methods configured
@@ -310,6 +313,10 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     }
 
+    /**
+     * 设置配置信息
+     * @param interfaceConfig
+     */
     public void completeCompoundConfigs(AbstractInterfaceConfig interfaceConfig) {
         if (interfaceConfig != null) {
             if (application == null) {

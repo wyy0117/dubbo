@@ -72,7 +72,13 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZooke
             if (authority != null && authority.length() > 0) {
                 builder = builder.authorization("digest", authority.getBytes());
             }
+            /**
+             * 创建CuratorFramework实例
+             */
             client = builder.build();
+            /**
+             * 添加连接状态 监听器
+             */
             client.getConnectionStateListenable().addListener(new CuratorConnectionStateListener(url));
             client.start();
             boolean connected = client.blockUntilConnected(timeout, TimeUnit.MILLISECONDS);
@@ -104,6 +110,9 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZooke
                     ", this duplication might be caused by a delete delay from the zk server, which means the old expired session" +
                     " may still holds this ZNode and the server just hasn't got time to do the deletion. In this case, " +
                     "we can just try to delete and create again.", e);
+            /**
+             * 先删除，然后递归创建临时节点
+             */
             deletePath(path);
             createEphemeral(path);
         } catch (Exception e) {

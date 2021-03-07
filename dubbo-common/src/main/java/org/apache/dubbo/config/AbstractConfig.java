@@ -111,6 +111,12 @@ public abstract class AbstractConfig implements Serializable {
         appendParameters(parameters, config, null);
     }
 
+    /**
+     * 反射执行config的get方法，将值放到parameters中，如果key有重复，会用，拼接在value中
+     * @param parameters
+     * @param config
+     * @param prefix
+     */
     @SuppressWarnings("unchecked")
     public static void appendParameters(Map<String, String> parameters, Object config, String prefix) {
         if (config == null) {
@@ -460,6 +466,9 @@ public abstract class AbstractConfig implements Serializable {
         this.prefix = prefix;
     }
 
+    /**
+     * 读取environment里的常量赋值
+     */
     public void refresh() {
         Environment env = ApplicationModel.getEnvironment();
         try {

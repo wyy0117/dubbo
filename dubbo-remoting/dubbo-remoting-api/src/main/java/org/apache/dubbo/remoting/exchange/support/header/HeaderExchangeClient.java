@@ -42,6 +42,8 @@ import static org.apache.dubbo.remoting.utils.UrlUtils.getIdleTimeout;
 
 /**
  * DefaultMessageClient
+ *
+ * <p>封装了心跳检测</p>
  */
 public class HeaderExchangeClient implements ExchangeClient {
 

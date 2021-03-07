@@ -59,6 +59,11 @@ public class ServiceRepository extends LifecycleAdapter implements FrameworkExt 
         }
     }
 
+    /**
+     * 创建服务描述符
+     * @param interfaceClazz
+     * @return
+     */
     public ServiceDescriptor registerService(Class<?> interfaceClazz) {
         return services.computeIfAbsent(interfaceClazz.getName(),
                 _k -> new ServiceDescriptor(interfaceClazz));

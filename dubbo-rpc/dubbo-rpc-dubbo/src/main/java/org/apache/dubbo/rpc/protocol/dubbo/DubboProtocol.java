@@ -287,6 +287,9 @@ public class DubboProtocol extends AbstractProtocol {
         exporterMap.put(key, exporter);
 
         //export an stub service for dispatching event
+        /**
+         * 本地存根
+         */
         Boolean isStubSupportEvent = url.getParameter(STUB_EVENT_KEY, DEFAULT_STUB_EVENT);
         Boolean isCallbackservice = url.getParameter(IS_CALLBACK_SERVICE, false);
         if (isStubSupportEvent && !isCallbackservice) {
@@ -300,6 +303,9 @@ public class DubboProtocol extends AbstractProtocol {
             }
         }
 
+        /**
+         * 创建服务连接
+         */
         openServer(url);
         optimizeSerialization(url);
 
@@ -312,6 +318,9 @@ public class DubboProtocol extends AbstractProtocol {
         //client can export a service which's only for server to invoke
         boolean isServer = url.getParameter(IS_SERVER_KEY, true);
         if (isServer) {
+            /**
+             * 同一台机器只允许一台服务
+             */
             ProtocolServer server = serverMap.get(key);
             if (server == null) {
                 synchronized (this) {
@@ -327,29 +336,55 @@ public class DubboProtocol extends AbstractProtocol {
         }
     }
 
+    /**
+     * server只会创建一次
+     * @param url
+     * @return
+     */
     private ProtocolServer createServer(URL url) {
         url = URLBuilder.from(url)
                 // send readonly event when server closes, it's enabled by default
                 .addParameterIfAbsent(CHANNEL_READONLYEVENT_SENT_KEY, Boolean.TRUE.toString())
                 // enable heartbeat by default
+                /**
+                 * 心跳检测参数
+                 */
                 .addParameterIfAbsent(HEARTBEAT_KEY, String.valueOf(DEFAULT_HEARTBEAT))
+                /**
+                 * 编解码器的参数
+                 */
                 .addParameter(CODEC_KEY, DubboCodec.NAME)
                 .build();
+        /**
+         * 设置服务参数，默认为netty
+         */
         String str = url.getParameter(SERVER_KEY, DEFAULT_REMOTING_SERVER);
 
+        /**
+         * 通过 SPI 检测是否存在 server 参数所代表的 Transporter 拓展，不存在则抛出异常,必须要在存在对应的Transporter的实现
+         */
         if (str != null && str.length() > 0 && !ExtensionLoader.getExtensionLoader(Transporter.class).hasExtension(str)) {
             throw new RpcException("Unsupported server type: " + str + ", url: " + url);
         }
 
         ExchangeServer server;
         try {
+            /**
+             * 创建exchange
+             */
             server = Exchangers.bind(url, requestHandler);
         } catch (RemotingException e) {
             throw new RpcException("Fail to start server(url: " + url + ") " + e.getMessage(), e);
         }
 
+        /**
+         * 获取client参数
+         */
         str = url.getParameter(CLIENT_KEY);
         if (str != null && str.length() > 0) {
+            /**
+             * 获取所有的 Transporter 实现类名称集合，比如 supportedTypes = [netty, mina]
+             */
             Set<String> supportedTypes = ExtensionLoader.getExtensionLoader(Transporter.class).getSupportedExtensions();
             if (!supportedTypes.contains(str)) {
                 throw new RpcException("Unsupported client type: " + str);
@@ -415,6 +450,9 @@ public class DubboProtocol extends AbstractProtocol {
         int connections = url.getParameter(CONNECTIONS_KEY, 0);
         List<ReferenceCountExchangeClient> shareClients = null;
         // if not configured, connection is shared, otherwise, one connection for one service
+        /**
+         * 未配置connections，使用共享连接
+         */
         if (connections == 0) {
             useShareConnect = true;
 
@@ -442,7 +480,7 @@ public class DubboProtocol extends AbstractProtocol {
 
     /**
      * Get shared connection
-     *
+     *<p>获取共享连接</p>
      * @param url
      * @param connectNum connectNum must be greater than or equal to 1
      */
@@ -518,7 +556,7 @@ public class DubboProtocol extends AbstractProtocol {
 
     /**
      * Increase the reference Count if we create new invoker shares same connection, the connection will be closed without any reference.
-     *
+     * 增加应用计数器
      * @param referenceCountExchangeClients
      */
     private void batchClientRefIncr(List<ReferenceCountExchangeClient> referenceCountExchangeClients) {
@@ -538,7 +576,7 @@ public class DubboProtocol extends AbstractProtocol {
      *
      * @param url
      * @param connectNum
-     * @return
+     * @return 带有引用计数器功能的client
      */
     private List<ReferenceCountExchangeClient> buildReferenceCountExchangeClientList(URL url, int connectNum) {
         List<ReferenceCountExchangeClient> clients = new ArrayList<>();
@@ -552,7 +590,7 @@ public class DubboProtocol extends AbstractProtocol {
 
     /**
      * Build a single client
-     *
+     * 创建client
      * @param url
      * @return
      */
@@ -577,6 +615,9 @@ public class DubboProtocol extends AbstractProtocol {
         url = url.addParameterIfAbsent(HEARTBEAT_KEY, String.valueOf(DEFAULT_HEARTBEAT));
 
         // BIO is not allowed since it has severe performance issue.
+        /**
+         * 获取不到自适应扩展的实现
+         */
         if (str != null && str.length() > 0 && !ExtensionLoader.getExtensionLoader(Transporter.class).hasExtension(str)) {
             throw new RpcException("Unsupported client type: " + str + "," +
                     " supported client type is " + StringUtils.join(ExtensionLoader.getExtensionLoader(Transporter.class).getSupportedExtensions(), " "));
@@ -586,6 +627,9 @@ public class DubboProtocol extends AbstractProtocol {
         try {
             // connection should be lazy
             if (url.getParameter(LAZY_CONNECT_KEY, false)) {
+                /**
+                 * 懒连接client
+                 */
                 client = new LazyConnectExchangeClient(url, requestHandler);
 
             } else {

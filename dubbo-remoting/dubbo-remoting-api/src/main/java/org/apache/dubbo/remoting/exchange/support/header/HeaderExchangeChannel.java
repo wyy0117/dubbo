@@ -132,6 +132,9 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         req.setData(request);
         DefaultFuture future = DefaultFuture.newFuture(channel, req, timeout, executor);
         try {
+            /**
+             * 发送请求
+             */
             channel.send(req);
         } catch (RemotingException e) {
             future.cancel();

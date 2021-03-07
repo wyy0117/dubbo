@@ -166,6 +166,12 @@ public class ConfigValidationUtils {
     private static final Pattern PATTERN_KEY = Pattern.compile("[*,\\-._0-9a-zA-Z]+");
 
 
+    /**
+     * 加载注册中心，拼接为URL
+     * @param interfaceConfig
+     * @param provider
+     * @return
+     */
     public static List<URL> loadRegistries(AbstractInterfaceConfig interfaceConfig, boolean provider) {
         // check && override if necessary
         List<URL> registryList = new ArrayList<URL>();
@@ -174,9 +180,15 @@ public class ConfigValidationUtils {
         if (CollectionUtils.isNotEmpty(registries)) {
             for (RegistryConfig config : registries) {
                 String address = config.getAddress();
+                /**
+                 * 设置为0.0.0.0
+                 */
                 if (StringUtils.isEmpty(address)) {
                     address = ANYHOST_VALUE;
                 }
+                /**
+                 * 不是N/A
+                 */
                 if (!RegistryConfig.NO_AVAILABLE.equalsIgnoreCase(address)) {
                     Map<String, String> map = new HashMap<String, String>();
                     AbstractConfig.appendParameters(map, application);
@@ -337,6 +349,10 @@ public class ConfigValidationUtils {
         }
     }
 
+    /**
+     * 证实配置
+     * @param config
+     */
     public static void validateReferenceConfig(ReferenceConfig config) {
         checkMultiExtension(InvokerListener.class, "listener", config.getListener());
         checkKey(VERSION_KEY, config.getVersion());

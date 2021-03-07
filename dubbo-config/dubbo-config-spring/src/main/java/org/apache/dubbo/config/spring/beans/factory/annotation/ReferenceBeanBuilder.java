@@ -56,6 +56,11 @@ class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<Reference
         super(attributes, applicationContext);
     }
 
+    /**
+     * 配置接口
+     * @param attributes
+     * @param referenceBean
+     */
     private void configureInterface(AnnotationAttributes attributes, ReferenceBean referenceBean) {
         Boolean generic = getAttribute(attributes, "generic");
         if (generic != null && generic) {
@@ -77,6 +82,9 @@ class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<Reference
     }
 
 
+    /*
+    自定义配置
+     */
     private void configureConsumerConfig(AnnotationAttributes attributes, ReferenceBean<?> referenceBean) {
 
         String consumerBeanName = getAttribute(attributes, "consumer");
@@ -87,6 +95,11 @@ class ReferenceBeanBuilder extends AnnotatedInterfaceConfigBeanBuilder<Reference
 
     }
 
+    /**
+     * 方法配置
+     * @param attributes
+     * @param referenceBean
+     */
     void configureMethodConfig(AnnotationAttributes attributes, ReferenceBean<?> referenceBean) {
         Method[] methods = (Method[]) attributes.get("methods");
         List<MethodConfig> methodConfigs = MethodConfig.constructMethodConfig(methods);

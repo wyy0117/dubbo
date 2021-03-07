@@ -69,6 +69,8 @@ public abstract class Proxy {
     /**
      * Get proxy.
      *
+     * 生成的代码会返回Proxy类型的对象，继承Proxy抽象类，实现传入的接口，接口的实现为调用InvocationHandler的方法
+     *
      * @param cl  class loader.
      * @param ics interface class array.
      * @return Proxy instance.

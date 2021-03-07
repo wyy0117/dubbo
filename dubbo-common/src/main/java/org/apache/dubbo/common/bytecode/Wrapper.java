@@ -100,6 +100,8 @@ public abstract class Wrapper {
     /**
      * get wrapper.
      *
+     * <p>根据传入的类名，生成一个Wrapper类型的实例，该实例中有几个特定的方法，wrapper方法的执行都是调用的被包装的实例的方法</p>
+     *
      * @param c Class instance.
      * @return Wrapper instance(not null).
      */

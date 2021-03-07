@@ -29,6 +29,7 @@ import java.lang.reflect.Method;
 
 /**
  * InvokerHandler
+ * 动态代理的实现类，传入{@link Invoker}类型的参数，通过{@link RpcInvocation}类型，调用远程服务
  */
 public class InvokerInvocationHandler implements InvocationHandler {
     private static final Logger logger = LoggerFactory.getLogger(InvokerInvocationHandler.class);
@@ -71,6 +72,9 @@ public class InvokerInvocationHandler implements InvocationHandler {
             rpcInvocation.put(Constants.METHOD_MODEL, consumerModel.getMethodModel(method));
         }
 
+        /**
+         * {@link org.apache.dubbo.rpc.cluster.support.wrapper.MockClusterInvoker#invoke(org.apache.dubbo.rpc.Invocation)}
+         */
         return invoker.invoke(rpcInvocation).recreate();
     }
 }

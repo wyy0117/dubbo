@@ -100,9 +100,15 @@ final class NettyChannel extends AbstractChannel {
         boolean success = true;
         int timeout = 0;
         try {
+            /**
+             * 发送消息
+             */
             ChannelFuture future = channel.write(message);
             if (sent) {
                 timeout = getUrl().getPositiveParameter(TIMEOUT_KEY, DEFAULT_TIMEOUT);
+                /**
+                 * 等待消息发出，若在规定时间没能发出，success 会被置为 false
+                 */
                 success = future.await(timeout);
             }
             Throwable cause = future.getCause();

@@ -223,10 +223,16 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
         return DUBBO + ".reference." + interfaceName;
     }
 
+    /**
+     * 从系统属性或者文件中，获取接口对应的属性信息
+     */
     public void resolveFile() {
         String resolve = System.getProperty(interfaceName);
         String resolveFile = null;
         if (StringUtils.isEmpty(resolve)) {
+            /**
+             * 从系统属性中获取解析文件路径
+             */
             resolveFile = System.getProperty("dubbo.resolve.file");
             if (StringUtils.isEmpty(resolveFile)) {
                 File userResolveFile = new File(new File(System.getProperty("user.home")), "dubbo-resolve.properties");
@@ -237,14 +243,23 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
             if (resolveFile != null && resolveFile.length() > 0) {
                 Properties properties = new Properties();
                 try (FileInputStream fis = new FileInputStream(new File(resolveFile))) {
+                    /**
+                     * 加载配置文件
+                     */
                     properties.load(fis);
                 } catch (IOException e) {
                     throw new IllegalStateException("Failed to load " + resolveFile + ", cause: " + e.getMessage(), e);
                 }
 
+                /**
+                 * 获取与接口名对应的配置信息
+                 */
                 resolve = properties.getProperty(interfaceName);
             }
         }
+        /**
+         * 如果获取到了，赋值给url
+         */
         if (resolve != null && resolve.length() > 0) {
             url = resolve;
             if (logger.isWarnEnabled()) {
